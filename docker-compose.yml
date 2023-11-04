@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: technical-test-postgres
+    environment:
+      - POSTGRES_DB=staycation
+      - POSTGRES_USER=staycation
+      - POSTGRES_PASSWORD=password
+      - TZ=GMT
+    ports:
+      - 5432:5432
+    volumes:
+      - ./test-data.sql:/docker-entrypoint-initdb.d/init.sql

@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bookings {
+  id      Int      @id(map: "bookings_pk") @default(autoincrement())
+  date    DateTime @db.Date
+  user_id Int
+  room_id Int
+  rooms   rooms    @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users   users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([date], map: "bookings_date_index")
+}
+
+model hotels {
+  id         Int       @id(map: "hotels_pk")
+  name       String
+  stars      Int
+  preview    String
+  picture_id String
+  reviews    reviews[]
+  rooms      rooms[]
+}
+
+model openings {
+  id             Int        @id(map: "openings_pk")
+  sale_id        Int
+  room_id        Int
+  date           DateTime   @db.Date
+  stock          Int
+  price          Float
+  discount_price Float
+  rooms          rooms      @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sale_dates     sale_dates @relation(fields: [sale_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model reviews {
+  id       Int    @id(map: "reviews_pk") @default(autoincrement())
+  hotel_id Int
+  user_id  Int
+  score    Float
+  hotels   hotels @relation(fields: [hotel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users    users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model rooms {
+  id       Int        @id
+  name     String
+  hotel_id Int
+  bookings bookings[]
+  openings openings[]
+  hotels   hotels     @relation(fields: [hotel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model sale_dates {
+  id            Int        @id(map: "sale_dates_pk")
+  start_date    DateTime   @db.Timestamp(6)
+  end_date      DateTime   @db.Timestamp(6)
+  bookable_days DateTime[] @db.Date
+  openings      openings[]
+}
+
+model users {
+  id         Int        @id(map: "users_pk") @default(autoincrement())
+  first_name String
+  bookings   bookings[]
+  reviews    reviews[]
+}
